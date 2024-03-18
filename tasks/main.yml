@@ -1,0 +1,42 @@
+- name: create download dir
+  file:
+    path: "{{ dell_shmcli_download_dir }}"
+    state: directory
+
+- name: download shmcli from DELL
+  ansible.builtin.get_url:
+    url: "{{ dell_shmcli_download_link }}"
+    dest: "{{ dell_shmcli_download_dir }}"
+  register: _download
+
+- name: extract shmcli installer
+  ansible.builtin.unarchive:
+    src: "{{ _download['dest'] }}"
+    dest: "{{ dell_shmcli_download_dir }}"
+
+- name: install shmcli
+  command: "{{ dell_shmcli_download_dir }}/{{ _download['dest'].split('.') | first | basename }} --mode unattended"
+  when: dell_shmcli_state == 'present'
+
+- name: link to /usr/bin
+  file:
+    src: "/opt/dell/ServerHardwareManager/ServerHardwareManagerCLI/bin/shmcli"
+    dest: "/usr/bin/shmcli"
+    state: link
+  when: dell_shmcli_state == 'present'
+
+- name: uninstall shmcli
+  command: "/opt/dell/ServerHardwareManager/ServerHardwareManager_uninstall --mode unattended"
+  when: dell_shmcli_state == 'absent'
+
+- name: unlink from /usr/bin
+  file:
+    dest: "/usr/bin/shmcli"
+    state: absent
+  when: dell_shmcli_state == 'absent'
+
+- name: remove download dir
+  file:
+    path: "{{ dell_shmcli_download_dir }}"
+    state: absent
+    recurse: true
