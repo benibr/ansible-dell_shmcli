@@ -11,11 +11,12 @@
 
 - name: extract shmcli installer
   ansible.builtin.unarchive:
+    remote_src: true
     src: "{{ _download['dest'] }}"
     dest: "{{ dell_shmcli_download_dir }}"
 
 - name: install shmcli
-  command: "{{ dell_shmcli_download_dir }}/{{ _download['dest'].split('.') | first | basename }} --mode unattended"
+  command: "{{ dell_shmcli_download_dir }}/{{ _download['dest'] | regex_replace('.tar.gz') | basename }} --mode unattended"
   when: dell_shmcli_state == 'present'
 
 - name: link to /usr/bin
@@ -39,4 +40,4 @@
   file:
     path: "{{ dell_shmcli_download_dir }}"
     state: absent
-    recurse: true
+  when: dell_shmcli_state == 'absent'
