@@ -1,4 +1,5 @@
 ---
 dell_shmcli_download_link: https://dl.dell.com/FOLDER07871963M/1/ServerHardwareManager-3.0.0.29-RHEL8-installer.tar.gz
+dell_shmcli_download_dir: /tmp
 
 dell_shmcli_state: present
